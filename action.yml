@@ -1,0 +1,63 @@
+name: Conventional React Native Release
+description: automatic tag and release with standard version
+
+author: Andrea Molinari
+branding:
+  color: green
+  icon: archive
+
+inputs:
+  GITHUB_TOKEN:
+    required: true
+    description: Repo github token
+
+outputs:
+  tag_name:
+    description: tag appena generato
+    value: ${{ steps.get-latest-tag.outputs.tag }}
+  release_id:
+    description: release_id
+    value: ${{ steps.get-release-id.outputs.id }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Standard Version
+      shell: bash
+      run: |
+        git config user.email "[bot]andrea-molinari@github-action.com"
+        git config user.name "[bot] Andrea Molinari"
+        npx standard-version
+
+    - uses: ad-m/github-push-action@v0.6.0
+      id: create-tag
+      with:
+        github_token: ${{ inputs.GITHUB_TOKEN }}
+        tags: true
+        branch: ${{ github.ref }}
+
+    # forse il tag devo crearlo a mano per poter aggiungere cose prima di pushare
+
+    - uses: actions-ecosystem/action-get-latest-tag@v1
+      id: get-latest-tag
+
+    # - MARK: Create release from latest tag
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get-latest-tag.outputs.tag }}
+        release_name: ${{ steps.get-latest-tag.outputs.tag }}
+        draft: false
+        prerelease: false
+        body_path: ./CHANGELOG.md
+
+    - uses: cardinalby/git-get-release-action@v1
+      id: get-release-id
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      with:
+        tag: ${{ steps.get-latest-tag.outputs.tag }}
