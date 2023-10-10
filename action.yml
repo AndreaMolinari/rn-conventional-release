@@ -10,18 +10,18 @@ inputs:
   token:
     required: true
     description: Repo github token
-  pre-release-name: 
+  pre-release-name:
     description: >
       string: Your version name (aplha|beta|rc)
-      
+
       - *any_val* standard version --prerelease any_val
 
       - *rc* standard version --prerelease
 
       - *new* standard version
-      
+
     required: false
-    default: 'new release'
+    default: "new release"
   pre-release-github:
     description: "bool: Mark GitHub release as pre-release"
     required: false
@@ -35,6 +35,10 @@ inputs:
   release-as:
     description: "string: Release as specific version"
     required: false
+  update-app-version:
+    description: "android|ios|both|none"
+    required: false
+    default: "none"
 
 outputs:
   tag_name:
@@ -48,11 +52,10 @@ runs:
   using: "composite"
 
   steps:
-
     # - name: simpa
     #   shell: bash
     #   run: echo "${{ toJson(github) }}"
-    
+
     - shell: bash
       name: Check Input Type
       id: check_input
@@ -71,14 +74,14 @@ runs:
         else
           echo "IS_DRAFT_RELEASE=false" >> $GITHUB_ENV
         fi
-  
+
     - shell: bash
       run: echo "COMMAND=npx standard-version" >> $GITHUB_ENV
 
     - shell: bash
       if: inputs.first-release == 'true'
       run: echo "COMMAND=${{env.COMMAND}} --first-release" >> $GITHUB_ENV
-      
+
     - shell: bash
       if: inputs.pre-release-name == 'rc'
       run: echo "COMMAND=${{env.COMMAND}} --prerelease" >> $GITHUB_ENV
@@ -90,7 +93,7 @@ runs:
     - shell: bash
       if: inputs.release-as != ''
       run: echo "COMMAND=${{env.COMMAND}} --release-as ${{ inputs.release-as }}" >> $GITHUB_ENV
-    
+
     - name: GitHub user config
       shell: bash
       run: |
@@ -100,6 +103,11 @@ runs:
     - name: Execute standard-version
       shell: bash
       run: ${{env.COMMAND}}
+
+    # !! Da fare
+    - name: Cambio le versioni
+      shell: bash
+      run: |
 
     - uses: ad-m/github-push-action@v0.6.0
       id: create-tag
