@@ -45,7 +45,7 @@ jobs:
           prefixes=("feat" "fix")
 
           for prefix in "${prefixes[@]}"; do
-              if [[ "${{ github.head_ref }}" == "$prefix-"* ]]; then
+              if [[ "${{ github.base_ref }}" == "$prefix-"* ]]; then
                   echo "must-run=true" >> $GITHUB_OUTPUT
                   echo "is-alpha=true" >> $GITHUB_OUTPUT
                   break
@@ -64,13 +64,13 @@ jobs:
 
       - if: github.event_name != 'pull_request'
         run: echo "must-run=true" >> $GITHUB_OUTPUT
-          
+
       - if: steps.auto-release-type.outputs.must-run == true
         uses: actions/Checkout@v4
 
       - if: steps.auto-release-type.outputs.must-run == true
         uses: actions/setup-node@v3
-      
+
       - if: steps.auto-release-type.outputs.must-run == true && github.event_name != 'pull_request'
         uses: ./../rn-conventional-release
         with:
@@ -80,23 +80,23 @@ jobs:
           pre-release-github: ${{ inputs.pre_release_github }}
           draft: ${{ inputs.draft }}
           release-as: ${{ inputs.release_as }}
-      
+
       - if: steps.auto-release-type.outputs.is-alpha == 'true'
         uses: ./../rn-conventional-release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           first-release: ${{ inputs.first_release }}
           pre-release-name: ${{ github.head_ref }}
-          pre-release-github: true
+          pre-release-github: "true"
           draft: ${{ inputs.draft }}
           release-as: ${{ inputs.release_as }}
-      
+
       - if: steps.auto-release-type.outputs.is-beta == 'true'
         uses: ./../rn-conventional-release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           first-release: ${{ inputs.first_release }}
-          pre-release-name: beta
-          pre-release-github: true
+          pre-release-name: "beta"
+          pre-release-github: "true"
           draft: ${{ inputs.draft }}
           release-as: ${{ inputs.release_as }}
