@@ -7,9 +7,34 @@ branding:
   icon: archive
 
 inputs:
-  GITHUB_TOKEN:
+  token:
     required: true
     description: Repo github token
+  pre-release-name: 
+    description: >
+      string: Your version name (aplha|beta|rc)
+      
+      - *any_val* standard version --prerelease any_val
+
+      - *rc* standard version --prerelease
+
+      - *new* standard version
+      
+    required: false
+    default: 'new release'
+  pre-release-github:
+    description: "bool: Mark GitHub release as pre-release"
+    required: false
+  draft:
+    description: "bool: Is draft"
+    required: false
+  first-release:
+    description: "bool: Create first release"
+    required: false
+    # default: "false"
+  release-as:
+    description: "string: Release as specific version"
+    required: false
 
 outputs:
   tag_name:
@@ -23,17 +48,63 @@ runs:
   using: "composite"
 
   steps:
-    - name: Standard Version
+
+    # - name: simpa
+    #   shell: bash
+    #   run: echo "${{ toJson(github) }}"
+    
+    - shell: bash
+      name: Check Input Type
+      id: check_input
+      run: |
+        # ?? Questo step può andare in una action di questo progetto?
+        # if [[ ${{ inputs.first-release }} =~ ^[0-9]+$ ]]; then
+        #   echo "my_input is a number."
+        #   echo "::set-output name=input_type::number"
+        if [ ${{ inputs.pre-release-github }} == "true" ]; then
+          echo "IS_PRE_RELEASE=true" >> $GITHUB_ENV
+        else
+          echo "IS_PRE_RELEASE=false" >> $GITHUB_ENV
+        fi
+        if [ ${{ inputs.draft }} == "true" ]; then
+          echo "IS_DRAFT_RELEASE=true" >> $GITHUB_ENV
+        else
+          echo "IS_DRAFT_RELEASE=false" >> $GITHUB_ENV
+        fi
+  
+    - shell: bash
+      run: echo "COMMAND=npx standard-version" >> $GITHUB_ENV
+
+    - shell: bash
+      if: inputs.first-release == 'true'
+      run: echo "COMMAND=${{env.COMMAND}} --first-release" >> $GITHUB_ENV
+      
+    - shell: bash
+      if: inputs.pre-release-name == 'rc'
+      run: echo "COMMAND=${{env.COMMAND}} --prerelease" >> $GITHUB_ENV
+
+    - shell: bash
+      if: inputs.pre-release-name == 'alpha' || inputs.pre-release-name == 'beta'
+      run: echo "COMMAND=${{env.COMMAND}} --prerelease ${{ inputs.pre-release-name }}" >> $GITHUB_ENV
+
+    - shell: bash
+      if: inputs.release-as != ''
+      run: echo "COMMAND=${{env.COMMAND}} --release-as ${{ inputs.release-as }}" >> $GITHUB_ENV
+    
+    - name: GitHub user config
       shell: bash
       run: |
         git config user.email "[bot]andrea-molinari@github-action.com"
         git config user.name "[bot] Andrea Molinari"
-        npx standard-version
+
+    - name: Execute standard-version
+      shell: bash
+      run: ${{env.COMMAND}}
 
     - uses: ad-m/github-push-action@v0.6.0
       id: create-tag
       with:
-        github_token: ${{ inputs.GITHUB_TOKEN }}
+        github_token: ${{ inputs.token }}
         tags: true
         branch: ${{ github.ref }}
 
@@ -47,17 +118,17 @@ runs:
       id: create_release
       uses: actions/create-release@latest
       env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         tag_name: ${{ steps.get-latest-tag.outputs.tag }}
         release_name: ${{ steps.get-latest-tag.outputs.tag }}
-        draft: false
-        prerelease: false
+        draft: ${{env.IS_DRAFT_RELEASE}}
+        prerelease: ${{env.IS_PRE_RELEASE}}
         body_path: ./CHANGELOG.md
 
     - uses: cardinalby/git-get-release-action@v1
       id: get-release-id
       env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         tag: ${{ steps.get-latest-tag.outputs.tag }}
