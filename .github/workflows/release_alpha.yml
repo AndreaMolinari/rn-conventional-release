@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - if: github.event_name == 'pull_request'
+      - if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         id: auto-release-type
         name: Verifica azione da compiere
         run: |
