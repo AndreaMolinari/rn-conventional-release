@@ -1,0 +1,22 @@
+name: Release new version
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+permissions: write-all
+
+jobs:
+  release-myself:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/Checkout@v4
+      - uses: actions/setup-node@v3
+      - uses: ./../rn-conventional-release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          first-release: true
