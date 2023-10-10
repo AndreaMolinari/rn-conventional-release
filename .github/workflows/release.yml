@@ -19,4 +19,3 @@ jobs:
       - uses: ./../rn-conventional-release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          first-release: true
