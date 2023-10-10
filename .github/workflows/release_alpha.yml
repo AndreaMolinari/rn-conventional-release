@@ -1,0 +1,46 @@
+name: Release new Alpha version
+
+on:
+  workflow_dispatch:
+    inputs:
+      type_release:
+        description: Chose release type
+        type: choice
+        default: "alpha"
+        options:
+          - "aplha"
+          - "beta"
+          - "rc"
+          - "new release"
+      first_release:
+        description: Is a First Release
+        type: boolean
+      pre_release_github:
+        description: Is a pre-release for GitHub
+        type: boolean
+        default: false
+      draft:
+        description: Is a Draft Release
+        type: boolean
+        default: false
+      release_as:
+        description: Release As
+        type: string
+
+permissions: write-all
+
+jobs:
+  release-myself:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/Checkout@v4
+      - uses: actions/setup-node@v3
+      - uses: ./../rn-conventional-release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          first-release: ${{ inputs.first_release }}
+          pre-release-name: ${{ inputs.type_release }}
+          pre-release-github: ${{ inputs.pre_release_github }}
+          draft: ${{ inputs.draft }}
+          release-as: ${{ inputs.release_as }}
