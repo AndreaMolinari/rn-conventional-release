@@ -13,10 +13,10 @@ inputs:
 outputs:
   new-version:
     value: ${{ steps.version-updater.outputs.new-version }}
-    description: "il mio outpu"
+    description: "New version"
   upgrated:
     value: ${{ steps.version-updater.outputs.version }}
-    description: "il mio outpu"
+    description: "Upgrate state"
 
 runs:
   using: composite

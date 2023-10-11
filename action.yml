@@ -56,8 +56,6 @@ runs:
     #   shell: bash
     #   run: echo "${{ toJson(github) }}"
 
-
-
     - shell: bash
       name: Check Input Type
       id: check_input
@@ -96,28 +94,30 @@ runs:
       if: inputs.release-as != ''
       run: echo "COMMAND=${{env.COMMAND}} --release-as ${{ inputs.release-as }}" >> $GITHUB_ENV
 
+
+    - shell: bash
+      id: check-node
+      run: |
+        if type node > /dev/null 2>&1 && which node > /dev/null 2>&1 ;then
+          echo "install-node=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "install-node=true" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: GitHub user config
       shell: bash
       run: |
         git config user.email "[bot]andrea-molinari@github-action.com"
         git config user.name "[bot] Andrea Molinari"
 
+    - if: steps.check-node.outputs.install-node == true
+      uses: actions/setup-node@v3
+
     - name: Execute standard-version
       shell: bash
       run: ${{env.COMMAND}}
 
-    # !! Da fare
-    # - id: upgrade-apps
-    #   shell: bash
-    #   run: |
-    #     echo "cerco package json"
-    #     echo "upgrade-android=true" >> $GITHUB_OUTPUT
-    #     echo "upgrade-ios=true" >> $GITHUB_OUTPUT
-
-    # - if: steps.upgrade-apps.outputs.upgrade-android == "true"
-    #   uses: ./.github/actions/android
-    # - if: steps.upgrade-apps.outputs.upgrade-ios == "true"
-    #   uses: ./.github/actions/ios
+    - uses: ./.github/actions/upgrade-apps #? In test 
 
     - uses: ad-m/github-push-action@v0.6.0
       id: create-tag
