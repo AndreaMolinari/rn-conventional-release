@@ -1,14 +1,14 @@
-name: Release new Alpha version
+name: Request new version
 
 on:
-  pull_request: 
-    types: 
+  pull_request:
+    types:
       - opened
   push:
-    branches: 
+    branches:
       - feat-*
       - fix-*
-  
+
   workflow_dispatch:
     inputs:
       type_release:
@@ -37,12 +37,25 @@ on:
 permissions: write-all
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: ./../rn-conventional-release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          first-release: ${{ inputs.first_release }}
+          pre-release-name: ${{ inputs.type_release }}
+          pre-release-github: ${{ inputs.pre_release_github }}
+          draft: ${{ inputs.draft }}
+          release-as: ${{ inputs.release_as }}
+
   check-release:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     outputs:
       release-it: ${{ steps.need-release.outputs.releaseIt }}
     steps:
-      
       - id: need-release
         name: Check release request
         run: |
@@ -53,17 +66,6 @@ jobs:
             echo "releaseIt=true" >> $GITHUB_OUTPUT
           fi
 
-
-      # - if: github.event_name != 'pull_request'
-      # uses: ./../rn-conventional-release
-      # with:
-      #   token: ${{ secrets.GITHUB_TOKEN }}
-      #   first-release: ${{ inputs.first_release }}
-      #   pre-release-name: ${{ inputs.type_release }}
-      #   pre-release-github: ${{ inputs.pre_release_github }}
-      #   draft: ${{ inputs.draft }}
-      #   release-as: ${{ inputs.release_as }}
-          
   release-it:
     if: needs.check-release.outputs.release-it == 'true'
     needs: check-release
@@ -78,6 +80,7 @@ jobs:
           pre-release-name: "alpha-${{ github.head_ref }}"
 
           draft: true
+
   message:
     if: needs.check-release.outputs.release-it == 'false'
     needs: check-release
