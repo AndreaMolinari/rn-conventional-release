@@ -12,4 +12,6 @@ jobs:
     steps:
       - uses: actions/Checkout@v4
 
+      - run: echo "Perchè test non parte?"
+
       - uses: ./.github/actions/upgrade-apps
