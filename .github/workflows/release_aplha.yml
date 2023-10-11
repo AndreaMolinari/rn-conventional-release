@@ -3,8 +3,11 @@ name: Request new version
 on:
   push:
     branches:
-      - feat-*
-      - fix-*
+      - "feat-*"
+      - "fix-*"
+      - "!feat-update-projects-version"
+      - "!develop"
+      - "!main"
 
   workflow_dispatch:
     inputs:

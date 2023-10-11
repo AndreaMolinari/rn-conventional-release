@@ -1,0 +1,47 @@
+name: Update iOs Project
+description: Update build gradle file
+
+inputs:
+  version:
+    required: true
+    description: "Prject version"
+
+  name:
+    required: true
+    description: "Prject name"
+
+outputs:
+  new-version:
+    value: ${{ steps.version-updater.outputs.new-version }}
+    description: "il mio outpu"
+  upgrated:
+    value: ${{ steps.version-updater.outputs.version }}
+    description: "il mio outpu"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      id: version-updater
+      env:
+        VERSION: ${{ inputs.version }}
+        PROJECT_NAME: ${{ inputs.name }}
+      run: |
+        if [[ $VERSION == *-* ]]; then
+            STRIPPED_VERSION=$(echo "$VERSION" | rev | cut -d'.' -f2- | rev)
+        else
+            STRIPPED_VERSION="$VERSION"
+        fi
+
+        PROJECT_FILE="ios/$PROJECT_NAME.xcodeproj/project.pbxproj"
+
+        if sed -i.bak 's/MARKETING_VERSION = .*;/MARKETING_VERSION = '"$STRIPPED_VERSION"';/g' "$PROJECT_FILE"; then
+          rm "$PROJECT_FILE.bak"  # Rimuove il file di backup generato da sed
+          git add "ios/$PROJECT_NAME.xcodeproj/project.pbxproj"
+          UPGRATED=true
+        else
+          UPGRATED=false
+        fi
+
+        echo "upgrated=$UPGRATED" >> "$GITHUB_OUTPUT"
+        echo "new-version=$STRIPPED_VERSION" >> "$GITHUB_OUTPUT"

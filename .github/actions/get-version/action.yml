@@ -1,0 +1,39 @@
+name: Get version
+description: Get project name and version from package.json
+
+outputs:
+  executable:
+    value: ${{ steps.check-package.outputs.executable }}
+    description: "Action status"
+  name:
+    value: ${{ steps.check-package.outputs.version }}
+    description: "Project name"
+  version:
+    value: ${{ steps.check-package.outputs.version }}
+    description: "Project version"
+
+runs:
+  using: composite
+
+  steps:
+    - uses: dcarbone/install-jq-action@v2.0.2
+      with:
+        version: "1.7"
+
+    - id: check-package
+      shell: bash
+      run: |
+        PACKAGE_JSON="package.json"
+
+        if [ ! -f "$PACKAGE_JSON" ]; then
+          EXECUTABLE=false
+        else
+          EXECUTABLE=true
+          PROJECT_NAME=$(jq -r '.name' $PACKAGE_JSON)
+
+          VERSION=$(jq -r '.version' package.json)
+
+          echo "name=$PROJECT_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        fi
+        echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"

@@ -56,6 +56,8 @@ runs:
     #   shell: bash
     #   run: echo "${{ toJson(github) }}"
 
+
+
     - shell: bash
       name: Check Input Type
       id: check_input
@@ -105,9 +107,17 @@ runs:
       run: ${{env.COMMAND}}
 
     # !! Da fare
-    - name: Cambio le versioni
-      shell: bash
-      run: |
+    # - id: upgrade-apps
+    #   shell: bash
+    #   run: |
+    #     echo "cerco package json"
+    #     echo "upgrade-android=true" >> $GITHUB_OUTPUT
+    #     echo "upgrade-ios=true" >> $GITHUB_OUTPUT
+
+    # - if: steps.upgrade-apps.outputs.upgrade-android == "true"
+    #   uses: ./.github/actions/android
+    # - if: steps.upgrade-apps.outputs.upgrade-ios == "true"
+    #   uses: ./.github/actions/ios
 
     - uses: ad-m/github-push-action@v0.6.0
       id: create-tag

@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/Checkout@v4
       - uses: actions/setup-node@v3
-      - uses: ./../rn-conventional-release
+      - id: release
+        uses: ./../rn-conventional-release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
