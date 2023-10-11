@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 1.0.1-beta.0 (2023-10-11)
 
+### 1.0.1-beta.0 (2023-10-11)
+
 ### 1.0.1-beta.0 (2023-10-10)
 
 ### 1.0.1-beta.0 (2023-10-10)
