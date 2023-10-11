@@ -1,9 +1,6 @@
 name: Request new version
 
 on:
-  pull_request:
-    types:
-      - opened
   push:
     branches:
       - feat-*
