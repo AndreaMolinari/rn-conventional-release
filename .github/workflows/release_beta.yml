@@ -1,22 +1,72 @@
-name: Release new Beta version
+name: Auto-detect Alpha/Beta version
 
 on:
   pull_request:
-    branches:
-      - develop
     types:
       - closed
 
 permissions: write-all
 
 jobs:
+  check: 
+    runs-on: ubuntu-latest
+
+    outputs:
+      must-run: ${{ steps.auto-release-type.outputs.must-run }}
+      is-alpha: ${{ steps.auto-release-type.outputs.is-alpha }}
+      is-beta: ${{ steps.auto-release-type.outputs.is-beta }}
+    
+    steps:
+      - if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        id: auto-release-type
+        name: Verifica azione da compiere
+        run: |
+          prefixes=("feat" "fix")
+
+          for prefix in "${prefixes[@]}"; do
+              if [[ "${{ github.base_ref }}" == "$prefix-"* ]]; then
+                  echo "must-run=true" >> $GITHUB_OUTPUT
+                  echo "is-alpha=true" >> $GITHUB_OUTPUT
+                  break
+              fi
+          done
+
+          branches=("develop")
+
+          for branch in "${branches[@]}"; do
+              if [[ "${{ github.base_ref }}" == "$branch" ]]; then
+                  echo "must-run=true" >> $GITHUB_OUTPUT
+                  echo "is-beta=true" >> $GITHUB_OUTPUT
+                  break
+              fi
+          done
+
+      - if: github.event_name != 'pull_request'
+        run: echo "must-run=true" >> $GITHUB_OUTPUT
+
+
   release-myself:
     runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.must-run == 'true'
 
     steps:
       - uses: actions/Checkout@v4
+
       - uses: actions/setup-node@v3
-      - uses: ./../rn-conventional-release
+
+      - if: needs.check.outputs.is-alpha == 'true'
+        uses: ./../rn-conventional-release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pre-release-name: ${{ github.head_ref }}
+          pre-release-github: "true"
+          draft: false
+
+      - if: needs.check.outputs.is-beta == 'true'
+        uses: ./../rn-conventional-release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pre-release-name: beta
+          pre-release-github: true
+          draft: false
