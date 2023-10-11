@@ -4,28 +4,28 @@ description: Upgrade Apps version from package.json
 runs:
   using: composite
 
-  steps: 
-      - id: upgrade-apps
-        shell: bash
-        run: |
-          echo "upgrade-android=false" >> "$GITHUB_OUTPUT"
-          echo "upgrade-ios=false" >> "$GITHUB_OUTPUT"
+  steps:
+    - id: upgrade-apps
+      shell: bash
+      run: |
+        echo "upgrade-android=false" >> "$GITHUB_OUTPUT"
+        echo "upgrade-ios=false" >> "$GITHUB_OUTPUT"
 
-      - id: get-version
-        uses: ./.github/actions/get-version
+    - id: get-version
+      uses: ./.github/actions/get-version
 
-      - if: steps.upgrade-apps.outputs.upgrade-android == true
-        name: Upgrade gradle version
-        uses: damienaicheh/update-android-version-gradle-action@v1.0.0
-        with:
-          build-gradle-path: './android/app/build.gradle'
-          version-code: ${{ github.run_number }}
-          version-name: ${{ steps.get-version.outputs.current-version }}
-          print-file: true
+    - if: steps.upgrade-apps.outputs.upgrade-android == true
+      name: Upgrade gradle version
+      uses: damienaicheh/update-android-version-gradle-action@v1.0.0
+      with:
+        build-gradle-path: "./android/app/build.gradle"
+        version-code: ${{ github.run_number }}
+        version-name: ${{ steps.get-version.outputs.current-version }}
+        print-file: true
 
-      - if: steps.upgrade-apps.outputs.upgrade-ios == true
-        name: Upgrade ios project version
-        uses: ./.github/actions/upgrade-ios
-        with:
-          project-name: ${{ steps.get-version.outputs.name }}
-          version: ${{ steps.get-version.outputs.version }}
+    - if: steps.upgrade-apps.outputs.upgrade-ios == true
+      name: Upgrade ios project version
+      uses: ./.github/actions/upgrade-ios
+      with:
+        project-name: ${{ steps.get-version.outputs.name }}
+        version: ${{ steps.get-version.outputs.version }}

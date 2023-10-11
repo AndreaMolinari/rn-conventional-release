@@ -8,14 +8,14 @@ on:
 permissions: write-all
 
 jobs:
-  check: 
+  check:
     runs-on: ubuntu-latest
 
     outputs:
       must-run: ${{ steps.auto-release-type.outputs.must-run }}
       is-alpha: ${{ steps.auto-release-type.outputs.is-alpha }}
       is-beta: ${{ steps.auto-release-type.outputs.is-beta }}
-    
+
     steps:
       - if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         id: auto-release-type
@@ -43,7 +43,6 @@ jobs:
 
       - if: github.event_name != 'pull_request'
         run: echo "must-run=true" >> $GITHUB_OUTPUT
-
 
   release-myself:
     runs-on: ubuntu-latest

@@ -11,5 +11,5 @@ jobs:
 
     steps:
       - uses: actions/Checkout@v4
-      
+
       - uses: ./.github/actions/upgrade-apps
