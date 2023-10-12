@@ -7,6 +7,10 @@ branding:
   icon: archive
 
 inputs:
+  upgrade-projects:
+    description: "Upgrade android/ios project"
+    required: false
+    default: "true"
   token:
     required: true
     description: Repo github token
@@ -117,7 +121,8 @@ runs:
       shell: bash
       run: ${{env.COMMAND}}
 
-    - uses: ./.github/actions/upgrade-apps #? In test 
+    - if: inputs.upgrade-projects == "true"
+      uses: ./.github/actions/upgrade-apps #? In test 
 
     - uses: ad-m/github-push-action@v0.6.0
       id: create-tag
