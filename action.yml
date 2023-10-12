@@ -121,7 +121,7 @@ runs:
       shell: bash
       run: ${{env.COMMAND}}
 
-    - if: inputs.upgrade-projects == "true"
+    - if: inputs.upgrade-projects == true
       uses: ./.github/actions/upgrade-apps #? In test 
 
     - uses: ad-m/github-push-action@v0.6.0
