@@ -34,6 +34,7 @@ on:
       release_as:
         description: Release As
         type: string
+
 permissions: write-all
 
 jobs:

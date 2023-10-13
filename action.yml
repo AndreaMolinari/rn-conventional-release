@@ -7,10 +7,6 @@ branding:
   icon: archive
 
 inputs:
-  upgrade-projects:
-    description: "Upgrade android/ios project"
-    required: false
-    default: "true"
   token:
     required: true
     description: Repo github token
@@ -39,7 +35,7 @@ inputs:
   release-as:
     description: "string: Release as specific version"
     required: false
-  update-app-version:
+  upgrade-app-version:
     description: "android|ios|both|none"
     required: false
     default: "none"
@@ -98,7 +94,6 @@ runs:
       if: inputs.release-as != ''
       run: echo "COMMAND=${{env.COMMAND}} --release-as ${{ inputs.release-as }}" >> $GITHUB_ENV
 
-
     - shell: bash
       id: check-node
       run: |
@@ -121,8 +116,8 @@ runs:
       shell: bash
       run: ${{env.COMMAND}}
 
-    - if: inputs.upgrade-projects == true
-      uses: ./.github/actions/upgrade-apps #? In test 
+    - if: inputs.upgrade-app-version != 'none'
+      uses: ./.github/actions/upgrade-apps #? In test
 
     - uses: ad-m/github-push-action@v0.6.0
       id: create-tag
