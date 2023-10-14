@@ -127,6 +127,8 @@ runs:
         branch: ${{ github.ref }}
 
     # forse il tag devo crearlo a mano per poter aggiungere cose prima di pushare
+    - shell: bash
+      run: git fetch -p
 
     - uses: actions-ecosystem/action-get-latest-tag@v1
       id: get-latest-tag
