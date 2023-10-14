@@ -65,34 +65,34 @@ runs:
         #   echo "my_input is a number."
         #   echo "::set-output name=input_type::number"
         if [ ${{ inputs.pre-release-github }} == "true" ]; then
-          echo "IS_PRE_RELEASE=true" >> $GITHUB_ENV
+          echo "IS_PRE_RELEASE=true" >> "$GITHUB_ENV"
         else
-          echo "IS_PRE_RELEASE=false" >> $GITHUB_ENV
+          echo "IS_PRE_RELEASE=false" >> "$GITHUB_ENV"
         fi
         if [ ${{ inputs.draft }} == "true" ]; then
-          echo "IS_DRAFT_RELEASE=true" >> $GITHUB_ENV
+          echo "IS_DRAFT_RELEASE=true" >> "$GITHUB_ENV"
         else
-          echo "IS_DRAFT_RELEASE=false" >> $GITHUB_ENV
+          echo "IS_DRAFT_RELEASE=false" >> "$GITHUB_ENV"
         fi
 
     - shell: bash
-      run: echo "COMMAND=npx standard-version" >> $GITHUB_ENV
+      run: echo "COMMAND=npx standard-version" >> "$GITHUB_ENV"
 
     - shell: bash
       if: inputs.first-release == 'true'
-      run: echo "COMMAND=${{env.COMMAND}} --first-release" >> $GITHUB_ENV
+      run: echo "COMMAND=${{env.COMMAND}} --first-release" >> "$GITHUB_ENV"
 
     - shell: bash
       if: inputs.pre-release-name == 'rc'
-      run: echo "COMMAND=${{env.COMMAND}} --prerelease" >> $GITHUB_ENV
+      run: echo "COMMAND=${{env.COMMAND}} --prerelease" >> "$GITHUB_ENV"
 
     - shell: bash
       if: inputs.pre-release-name == 'alpha' || inputs.pre-release-name == 'beta'
-      run: echo "COMMAND=${{env.COMMAND}} --prerelease ${{ inputs.pre-release-name }}" >> $GITHUB_ENV
+      run: echo "COMMAND=${{env.COMMAND}} --prerelease ${{ inputs.pre-release-name }}" >> "$GITHUB_ENV"
 
     - shell: bash
       if: inputs.release-as != ''
-      run: echo "COMMAND=${{env.COMMAND}} --release-as ${{ inputs.release-as }}" >> $GITHUB_ENV
+      run: echo "COMMAND=${{env.COMMAND}} --release-as ${{ inputs.release-as }}" >> "$GITHUB_ENV"
 
     - shell: bash
       id: check-node
